@@ -13,7 +13,7 @@ public class BooksStore implements IBooksStore{
     }
 
     @Override
-    public Iterable<Book> getAllBooks(){
+    public List<Book> getAllBooks(){
         List<Book> allBooks = new LinkedList<>();
         for (Map.Entry<String, Book> book : bookMap.entrySet()) {
             allBooks.add(book.getValue());
