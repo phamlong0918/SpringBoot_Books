@@ -1,50 +1,57 @@
 package Books;
 
 import java.util.*;
+import javax.persistence.*;
 
+@Entity
+@Table(name = "Book_List")
 public class Book {
 
-    private String m_name;
-    private String m_description;
-    private String m_author;
-    private Date m_publishDate;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Integer id;
+    private String name;
+    private String description;
+    private String author;
+    private Date publishDate;
 
-    public Book(String name, String description, String author, Date publishDate){
-        this.m_name = name;
-        this.m_description = description;
-        this.m_author = author;
-        this.m_publishDate = publishDate;
+    public Integer getId() {
+        return id;
     }
 
     public String getName() {
-        return m_name;
+        return name;
     }
 
     public String getDescription() {
-        return m_description;
+        return description;
     }
 
     public String getAuthor() {
-        return m_author;
+        return author;
     }
 
     public Date getPublishDate() {
-        return m_publishDate;
+        return publishDate;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public void setName(String name) {
-        this.m_name = name;
+        this.name = name;
     }
 
     public void setDescription(String description) {
-        this.m_description = description;
+        this.description = description;
     }
 
     public void setAuthor(String author) {
-        this.m_author = author;
+        this.author = author;
     }
 
     public void setPublishDate(Date publishDate) {
-        this.m_publishDate = publishDate;
+        this.publishDate = publishDate;
     }
 }

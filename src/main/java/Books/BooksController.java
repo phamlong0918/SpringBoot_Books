@@ -1,58 +1,94 @@
 package Books;
 
 import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@RestController
+@Controller
 public class BooksController {
 
-    private IBooksStore booksStore;
+    @Autowired
+    private BookRepository bookRepository;
 
-    public BooksController(){
-        booksStore = new BooksStore();
-    }
-
-    // all books
+    // All books
     @GetMapping("/books")
-    public List<Book> getAllBooks() {
-        return booksStore.getAllBooks();
+    public @ResponseBody Iterable<Book> getAllBooks() {
+        return bookRepository.findAll();
     }
 
-    // detail of a books
-    @GetMapping("/books/{name}")
-    public Book getBook(@PathVariable String name){
-        return booksStore.getBook(name);
+    // Detail of a books
+    @GetMapping("/books/{id}")
+    public @ResponseBody Optional<Book> getBook(@PathVariable Integer id){
+        return bookRepository.findById(id);
     }
 
-    // add a new book
+    // Add a new book
     @PostMapping("/books")
-    void addBook(@RequestBody Book newBook) {
-        booksStore.addBook(newBook);
+    public @ResponseBody String addBook(@RequestParam String name
+    , @RequestParam String description
+    , @RequestParam String author
+    , @RequestParam String publishDate) {
+        try
+        {
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date date = dateFormat.parse(publishDate);
+
+            Book newBook = new Book();
+            newBook.setName(name);
+            newBook.setDescription(description);
+            newBook.setAuthor(author);
+            newBook.setPublishDate(date);
+            bookRepository.save(newBook);
+        }
+        catch (Exception e)
+        {
+            return e.toString();
+        }
+
+        return "Add book success!";
     }
 
-    // edit a new book
-    @PutMapping("/books/{name}")
-    void replaceEmployee(@RequestBody Book book, @PathVariable String name) {
-        Book editBook = booksStore.getBook(name);
-        editBook.setName(book.getName());
-        editBook.setDescription(book.getDescription());
-        editBook.setAuthor(book.getAuthor());
-        editBook.setPublishDate(book.getPublishDate());
+    // Edit a new book
+    @PutMapping("/books/{id}")
+    public @ResponseBody String editBook(@PathVariable Integer id
+            , @RequestParam String newName
+            , @RequestParam String newDescription
+            , @RequestParam String newAuthor
+            , @RequestParam String newPublishDate) {
+
+        try
+        {
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date newDate = dateFormat.parse(newPublishDate);
+
+            bookRepository.findById(id)
+                    .map(book -> {
+                        book.setName(newName);
+                        book.setDescription(newDescription);
+                        book.setAuthor(newAuthor);
+                        book.setPublishDate(newDate);
+                        return bookRepository.save(book);
+                    });
+        }
+        catch (Exception e)
+        {
+            return e.toString();
+        }
+
+        return "Edit success";
     }
 
-    // delete a book
-    @DeleteMapping("/books/{name}")
-    public void delete(@PathVariable String name) {
-        booksStore.deleteBook(name);
+    // Delete a book
+    @DeleteMapping("/books")
+    public @ResponseBody String deleteBook(@RequestParam Integer id) {
+        bookRepository.deleteById(id);
+        return "Delete success";
     }
 }
